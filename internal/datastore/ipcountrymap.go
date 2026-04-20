@@ -148,7 +148,7 @@ func (s *IPCountryMapStore) Update(ctx context.Context, mappedIpCountryRecord *M
 
 	query := `
 		UPDATE ` + ipTable + ` 
-		SET geoname_id = (SELECT geoname_id from geolocation_country_map where country_name = $1)
+		SET geoname_id = (SELECT geoname_id from geolocation_country_map where LOWER(country_name) = LOWER($1))
 		WHERE cidr_ip = $2
 		RETURNING id, created_at
 	`
