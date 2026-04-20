@@ -1,0 +1,30 @@
+version: '2.4'
+
+services:
+  db:
+    image: postgres:14-bullseye
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: ipcountry
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminpassword
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./scripts/:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5432:5432"
+  app:
+    depends_on:
+      - db
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: geoapp:latest
+    env_file:
+      - ./.env
+    ports:
+      - "8080:8080"
+
+volumes:
+  db-data:
+    driver: local

@@ -1,0 +1,209 @@
+basePath: /v1
+definitions:
+  datastore.MappedCountry:
+    properties:
+      country:
+        type: string
+    type: object
+  datastore.MappedIpCountryRecord:
+    properties:
+      country:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: integer
+      ip:
+        type: string
+    type: object
+  datastore.WhitelistedResults:
+    properties:
+      whitelisted:
+        type: boolean
+    type: object
+  main.CIDRIPCountryPayload:
+    properties:
+      country:
+        example: Japan
+        type: string
+      ip:
+        example: 2001:200::/32
+        type: string
+    required:
+    - country
+    - ip
+    type: object
+  main.CIDRIPPayload:
+    properties:
+      ip:
+        example: 2001:200::/32
+        type: string
+    required:
+    - ip
+    type: object
+info:
+  contact:
+    email: delgme1vzw@gmail.com
+    name: delgme1
+  description: API to retrieve country whitelist status based on IP
+  title: Country Whitelister API
+paths:
+  /v1/ip-map/:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: IP (CIDR IPv4 or IPv6)
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.CIDRIPPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Allows the user to delete an entry in CIDR IP - Country table by the
+        CIDR IP
+      tags:
+      - Maintenance
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: IP (CIDR IPv4 or IPv6) and Country
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.CIDRIPCountryPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/datastore.MappedIpCountryRecord'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Allows the user to update an entry in CIDR IP - Country table by CIDR
+        IP
+      tags:
+      - Maintenance
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: IP (CIDR IPv4 or IPv6) and Country
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.CIDRIPCountryPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/datastore.MappedIpCountryRecord'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Allows the user to create a new entry in CIDR IP - Country table
+      tags:
+      - Maintenance
+  /v1/ip-map/{ip}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 2001:200::/32
+        description: CIDR IP (IPv4 or IPv6)
+        example: 2001:200::/32
+        in: path
+        name: ip
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/datastore.MappedCountry'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Allows the user to check what country a CIDR IP is mapped to
+      tags:
+      - Maintenance
+  /v1/whitelist-status/{ip}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: '2001:200::'
+        description: Single IP (IPv4 or IPv6)
+        example: '2001:200::'
+        in: path
+        name: ip
+        required: true
+        type: string
+      - default: France,Uganda
+        description: Comma-separated countries
+        example: France,Uganda
+        in: query
+        name: countries
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/datastore.WhitelistedResults'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Allows the user to check if a CIDR IP is whitelisted for the given
+        countries
+      tags:
+      - Whitelist
+swagger: "2.0"
